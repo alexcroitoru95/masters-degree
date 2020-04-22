@@ -1,11 +1,11 @@
 import { Dimensions } from 'react-native';
 
-export const window = {
+export const WINDOW = {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
 };
 
 export const isSmallDevice = window.width < 375;
 
-export const latitudeDelta = 0.04864195044303443;
-export const longitudeDelta = 0.040142817690068;
+// DEFAULT VALUE FOR LATITUDE DELTAs
+export const LATITUDE_DELTA = 0.0922;

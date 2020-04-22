@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { TabBarIcon } from '../components';
 import MapScreen from '../screens/MapScreen';
 import RecommendationsScreen from '../screens/RecommendationsScreen';
+import StatsScreen from '../screens/StatsScreen';
 
 const config = Platform.select({
     web: { headerMode: 'screen' },
@@ -20,7 +21,7 @@ const MapStack = createStackNavigator(
 );
 
 MapStack.navigationOptions = {
-    tabBarLabel: 'Map',
+    tabBarLabel: 'Hartă',
     tabBarIcon: ({ focused }) => (
         <TabBarIcon
             focused={focused}
@@ -31,6 +32,25 @@ MapStack.navigationOptions = {
 
 MapStack.path = '';
 
+const StatsStack = createStackNavigator(
+    {
+        Stats: StatsScreen,
+    },
+    config
+);
+
+StatsStack.navigationOptions = {
+    tabBarLabel: 'Statistici',
+    tabBarIcon: ({ focused }) => (
+        <TabBarIcon
+            focused={focused}
+            name={focused ? 'questioncircleo' : 'questioncircle'}
+        />
+    ),
+};
+
+StatsStack.path = '';
+
 const RecommendationsStack = createStackNavigator(
     {
         Recommendation: RecommendationsScreen,
@@ -39,7 +59,7 @@ const RecommendationsStack = createStackNavigator(
 );
 
 RecommendationsStack.navigationOptions = {
-    tabBarLabel: 'Recommendations',
+    tabBarLabel: 'Recomandări',
     tabBarIcon: ({ focused }) => (
         <TabBarIcon
             focused={focused}
@@ -52,6 +72,7 @@ RecommendationsStack.path = '';
 
 const tabNavigator = createBottomTabNavigator({
     MapStack,
+    StatsStack,
     RecommendationsStack,
 });
 
