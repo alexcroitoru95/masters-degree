@@ -143,12 +143,12 @@ export const regionsOfRomania = {
         longitude: 24.15,
     },
     suceava: {
-        latitude: 47.67,
-        longitude: 26.28,
+        latitude: 47.64,
+        longitude: 26.24,
     },
     teleorman: {
-        latitude: 43.97,
-        longitude: 25.33,
+        latitude: 43.98,
+        longitude: 25.64,
     },
     timiș: {
         latitude: 45.76,

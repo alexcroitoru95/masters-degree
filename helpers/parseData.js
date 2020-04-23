@@ -38,7 +38,10 @@ const addExtraInformationToData = (data) => {
                       formattedRegion.length
                   )
                 : formattedRegion;
-        const regionData = regionsOfRomania[formattedRegion];
+        const regionData =
+            formattedRegion === 'satu mare'
+                ? regionsOfRomania['satu_mare']
+                : regionsOfRomania[formattedRegion];
 
         const latitude = regionData
             ? regionData.latitude

@@ -196,33 +196,6 @@ function getHoursAndMinutesFromDate(date) {
     return `${h}:${m}`;
 }
 
-class FlatListItem extends PureComponent {
-    render() {
-        const { date, iconColor, score } = this.props;
-
-        const dateTime = new Date(date);
-        const day = dateTime ? daysOfWeek[dateTime.getDay()] : '';
-
-        return (
-            <View style={styles.flatListItem}>
-                <Text style={styles.flatListDate}>
-                    {day} - {getHoursAndMinutesFromDate(date)}
-                </Text>
-                <Image
-                    source={require('../assets/images/air_pollution.png')}
-                    style={[
-                        styles.flatListImage,
-                        {
-                            tintColor: iconColor,
-                        },
-                    ]}
-                />
-                <Text style={styles.flatListScore}>{score}%</Text>
-            </View>
-        );
-    }
-}
-
 // async function getPollutionData(latitude, longitude) {
 //     let responseData = null;
 

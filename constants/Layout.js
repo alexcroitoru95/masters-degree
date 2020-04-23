@@ -7,5 +7,6 @@ export const WINDOW = {
 
 export const isSmallDevice = window.width < 375;
 
+export const LATITUDE_DELTA_ALL_REGIONS = 15;
 // DEFAULT VALUE FOR LATITUDE DELTAs
-export const LATITUDE_DELTA = 0.0922;
+export const DEFAULT_LATITUDE_DELTA = 0.0922;

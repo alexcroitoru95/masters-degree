@@ -6,7 +6,8 @@ import Carousel from 'react-native-snap-carousel';
 
 import {
     WINDOW,
-    LATITUDE_DELTA,
+    LATITUDE_DELTA_ALL_REGIONS,
+    DEFAULT_LATITUDE_DELTA,
     ROMANIA_CENTER_LATITUDE,
     ROMANIA_CENTER_LONGITUDE,
     regionsOfRomania,
@@ -53,8 +54,8 @@ export function InteractiveMap(props) {
         name: '',
         latitude: ROMANIA_CENTER_LATITUDE,
         longitude: ROMANIA_CENTER_LONGITUDE,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LATITUDE_DELTA * ASPECT_RATIO,
+        latitudeDelta: LATITUDE_DELTA_ALL_REGIONS,
+        longitudeDelta: LATITUDE_DELTA_ALL_REGIONS * ASPECT_RATIO,
     });
 
     let mapRef = useRef(null);
@@ -78,8 +79,8 @@ export function InteractiveMap(props) {
                 name: formattedRegion,
                 latitude: currentRegion.latitude,
                 longitude: currentRegion.longitude,
-                latitudeDelta: LATITUDE_DELTA,
-                longitudeDelta: LATITUDE_DELTA * ASPECT_RATIO,
+                latitudeDelta: DEFAULT_LATITUDE_DELTA,
+                longitudeDelta: DEFAULT_LATITUDE_DELTA * ASPECT_RATIO,
             });
         }
     }, [props.location]);
@@ -106,8 +107,8 @@ export function InteractiveMap(props) {
         mapRef.animateToRegion(
             {
                 ...coordinate,
-                latitudeDelta: region.latitudeDelta,
-                longitudeDelta: region.longitudeDelta,
+                latitudeDelta: DEFAULT_LATITUDE_DELTA,
+                longitudeDelta: DEFAULT_LATITUDE_DELTA * ASPECT_RATIO,
             },
             350
         );
