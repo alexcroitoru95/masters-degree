@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Animated, Image } from 'react-native';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
+import Carousel from 'react-native-snap-carousel';
 
 import {
     WINDOW,
@@ -18,6 +19,33 @@ const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = WINDOW;
 const ASPECT_RATIO = WINDOW_WIDTH / WINDOW_HEIGHT;
 const CARD_HEIGHT = WINDOW_HEIGHT / 4;
 const CARD_WIDTH = CARD_HEIGHT - 50;
+const MARGIN_BETWEEN_CARDS = 10;
+
+const CarouselItems = ({ item, index }) => {
+    const { title, image, cases } = item;
+    return (
+        <View key={`Region-Card-${index}`} style={styles.cardContainer}>
+            <Image
+                source={Icons[image]}
+                style={styles.cardImage}
+                resizeMode="cover"
+            />
+            <View style={styles.textContainer}>
+                <Text numberOfLines={1} style={styles.cardTitle}>
+                    {title}
+                </Text>
+                <View style={styles.cardDescription}>
+                    <Text numberOfLines={1} style={styles.cardPlaceholder}>
+                        Total Cazuri:
+                    </Text>
+                    <Text numberOfLines={1} style={styles.cardCases}>
+                        {cases}
+                    </Text>
+                </View>
+            </View>
+        </View>
+    );
+};
 
 export function InteractiveMap(props) {
     const [data, setData] = useState(props.data);
@@ -28,52 +56,15 @@ export function InteractiveMap(props) {
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LATITUDE_DELTA * ASPECT_RATIO,
     });
-    const [regionCardsPosition, setRegionCardsPosition] = useState([]);
 
-    const animation = new Animated.Value(0);
-    let startIndex = 0;
     let mapRef = useRef(null);
-    let scrollViewRef = useRef(null);
-    let regionTimeout = null;
+    let carouselRef = useRef(null);
 
     useEffect(() => {
         if (props.data.length > 0) {
             setData(props.data);
         }
     }, [props.data]);
-
-    useEffect(() => {
-        animation.addListener(({ value }) => {
-            let index = Math.floor(value / CARD_WIDTH + 0.3);
-
-            if (index >= data.length) {
-                index = data.length - 1;
-            }
-            if (index <= 0) {
-                index = 0;
-            }
-
-            regionTimeout = setTimeout(() => {
-                if (startIndex !== index) {
-                    startIndex = index;
-                    const { coordinate } = data[index];
-
-                    mapRef.animateToRegion(
-                        {
-                            ...coordinate,
-                            latitudeDelta: region.latitudeDelta,
-                            longitudeDelta: region.longitudeDelta,
-                        },
-                        350
-                    );
-                }
-            }, 10);
-        });
-
-        return () => {
-            clearTimeout(regionTimeout);
-        };
-    });
 
     useEffect(() => {
         if (props.location) {
@@ -84,7 +75,7 @@ export function InteractiveMap(props) {
                 regionsOfRomania[formattedRegion.toLowerCase()];
 
             setRegion({
-                name: formattedRegion.toLowerCase(),
+                name: formattedRegion,
                 latitude: currentRegion.latitude,
                 longitude: currentRegion.longitude,
                 latitudeDelta: LATITUDE_DELTA,
@@ -100,14 +91,27 @@ export function InteractiveMap(props) {
         ) {
             mapRef.animateToRegion(region, 350);
         }
-        if (regionCardsPosition && region.name.length) {
-            scrollViewRef.getNode().scrollTo({
-                x: regionCardsPosition[region.name],
-                y: 0,
-                animated: true,
-            });
+        if (region.name.length) {
+            const newIndex = props.data.findIndex(
+                (e) => e.title === region.name
+            );
+            if (newIndex >= 0) {
+                carouselRef.current.snapToItem(newIndex);
+            }
         }
     }, [region]);
+
+    function onCarouselSnap(index) {
+        const { coordinate } = data[index];
+        mapRef.animateToRegion(
+            {
+                ...coordinate,
+                latitudeDelta: region.latitudeDelta,
+                longitudeDelta: region.longitudeDelta,
+            },
+            350
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -117,112 +121,32 @@ export function InteractiveMap(props) {
                 style={styles.container}
             >
                 {data.length > 0 &&
-                    data.map((marker, index) => {
-                        const inputRange = [
-                            (index - 1) * CARD_WIDTH,
-                            index * CARD_WIDTH,
-                            (index + 1) * CARD_WIDTH,
-                        ];
-                        const scaleStyle = {
-                            transform: [
-                                {
-                                    scale: animation.interpolate({
-                                        inputRange,
-                                        outputRange: [1, 2.5, 1],
-                                        extrapolate: 'clamp',
-                                    }),
-                                },
-                            ],
-                        };
-                        const opacityStyle = {
-                            opacity: animation.interpolate({
-                                inputRange,
-                                outputRange: [0.35, 1, 0.35],
-                                extrapolate: 'clamp',
-                            }),
-                        };
-                        return (
-                            <Marker
-                                key={`Region-Marker-${index}`}
-                                coordinate={marker.coordinate}
-                            >
-                                <Animated.View
-                                    style={[styles.markerWrap, opacityStyle]}
-                                >
-                                    <Animated.View
-                                        style={[styles.ring, scaleStyle]}
-                                    />
-                                    <View style={styles.marker} />
-                                </Animated.View>
-                            </Marker>
-                        );
-                    })}
+                    data.map((marker, index) => (
+                        <Marker
+                            key={`Region-Marker-${index}`}
+                            coordinate={marker.coordinate}
+                        >
+                            <Animated.View style={styles.markerWrap}>
+                                <Animated.View style={styles.ring} />
+                                <View style={styles.marker} />
+                            </Animated.View>
+                        </Marker>
+                    ))}
             </MapView>
             {data.length > 0 && (
-                <Animated.ScrollView
-                    ref={(ref) => {
-                        scrollViewRef = ref;
-                    }}
-                    horizontal
-                    scrollEventThrottle={1}
-                    showsHorizontalScrollIndicator={false}
-                    snapToInterval={CARD_WIDTH}
-                    onScroll={Animated.event(
-                        [
-                            {
-                                nativeEvent: {
-                                    contentOffset: {
-                                        x: animation,
-                                    },
-                                },
-                            },
-                        ],
-                        { useNativeDriver: true }
-                    )}
-                    style={styles.scrollView}
-                    contentContainerStyle={styles.endPadding}
-                >
-                    {data.map(({ image, title, cases }, index) => (
-                        <View
-                            key={`Region-Card-${index}`}
-                            onLayout={({ nativeEvent }) => {
-                                setRegionCardsPosition({
-                                    ...regionCardsPosition,
-                                    [title.toLowerCase()]: nativeEvent.layout.x,
-                                });
-                            }}
-                            style={styles.card}
-                        >
-                            <Image
-                                source={Icons[image]}
-                                style={styles.cardImage}
-                                resizeMode="cover"
-                            />
-                            <View style={styles.textContent}>
-                                <Text
-                                    numberOfLines={1}
-                                    style={styles.cardTitle}
-                                >
-                                    {title}
-                                </Text>
-                                <View style={styles.cardDescription}>
-                                    <Text
-                                        numberOfLines={1}
-                                        style={styles.cardPlaceholder}
-                                    >
-                                        Total Cazuri:
-                                    </Text>
-                                    <Text
-                                        numberOfLines={1}
-                                        style={styles.cardCases}
-                                    >
-                                        {cases}
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                    ))}
-                </Animated.ScrollView>
+                <View style={styles.carouselContainer}>
+                    <Carousel
+                        ref={carouselRef}
+                        data={data}
+                        loop
+                        useScrollView
+                        renderItem={CarouselItems}
+                        sliderWidth={WINDOW_WIDTH}
+                        itemWidth={CARD_WIDTH}
+                        contentContainerCustomStyle={styles.startPadding}
+                        onSnapToItem={(index) => onCarouselSnap(index)}
+                    />
+                </View>
             )}
         </View>
     );
@@ -232,20 +156,19 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    scrollView: {
+    carouselContainer: {
         position: 'absolute',
         bottom: 30,
         left: 0,
         right: 0,
-        paddingVertical: 10,
     },
-    endPadding: {
-        paddingRight: WINDOW_WIDTH - CARD_WIDTH,
+    startPadding: {
+        paddingLeft: (WINDOW_WIDTH - CARD_WIDTH) / 2 - MARGIN_BETWEEN_CARDS,
     },
-    card: {
-        padding: 10,
+    cardContainer: {
+        padding: 5,
         elevation: 2,
-        marginHorizontal: 10,
+        marginHorizontal: MARGIN_BETWEEN_CARDS,
         backgroundColor: '#FFF',
         shadowColor: '#000',
         shadowRadius: 5,
@@ -264,7 +187,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignSelf: 'center',
     },
-    textContent: {
+    textContainer: {
         flex: 1,
     },
     cardTitle: {
@@ -299,12 +222,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(130,4,150, 0.9)',
     },
     ring: {
+        position: 'absolute',
         width: 24,
         height: 24,
         borderRadius: 12,
         backgroundColor: 'rgba(130,4,150, 0.3)',
-        position: 'absolute',
         borderWidth: 1,
         borderColor: 'rgba(130,4,150, 0.5)',
+        transform: [{ scale: 1.5 }],
     },
 });

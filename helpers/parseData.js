@@ -7,6 +7,7 @@ import {
 export const parseStringData = (data) => {
     let formattedData = data.split('\n\n\n');
     formattedData = formattedData.slice(1, formattedData.length - 1);
+    formattedData = formattedData.filter((e) => e.indexOf('–') === -1);
 
     formattedData = formattedData.map((e) => {
         const arrayWithRegionAndCases = e

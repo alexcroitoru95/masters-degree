@@ -12,7 +12,7 @@ import {
 } from '../constants';
 import { parseStringData, getLocationAsync } from '../helpers';
 
-// TO BE DELETED
+// TO BE DELETED MOCK DATA
 const formattedData = parseStringData(LATEST_DATA);
 
 export default function MapScreen(props) {
@@ -24,21 +24,72 @@ export default function MapScreen(props) {
     const [loader, setLoader] = useState(false);
     const [latestNewsLink, setLatestNewsLink] = useState(LATEST_NEWS_LINK);
     const [latestData, setLatestData] = useState('');
+    const [apiError, setAPIError] = useState('');
 
     // TO BE UNCOMMENTED OUT
-    // useEffect(() => {
-    //     getLatestNews().then((response) => {
-    //         if (response.data.output && response.data.output.length) {
-    //             const formattedLink = response.data.output.split('/')[3];
-    //             setLatestNewsLink(formattedLink);
-    //         }
-    //     });
-    // }, []);
+    useEffect(() => {
+        getLatestNews()
+            .then((response) => {
+                if (response.data.output && response.data.output.length) {
+                    const formattedLink = response.data.output.split('/')[3];
+                    setLatestNewsLink(formattedLink);
+                }
+            })
+            .catch((e) => {
+                Alert.alert('API Link Error', `\n${e}`, [
+                    {
+                        text: 'Ok',
+                        onPress: () => {
+                            setLoader(false);
+                            setAPIError(e);
+                        },
+                        style: 'cancel',
+                    },
+                ]);
+            });
+    }, []);
 
     useEffect(() => {
         const { isLoaded } = props.screenProps;
 
         if (!userAgreement && isLoaded) {
+            setLoader(true);
+
+            // MOCK DATA
+            if (!latestData.length) {
+                setLatestData(formattedData);
+                setLoader(false);
+            }
+
+            // TO BE UNCOMMENTED OUT
+            // if (latestNewsLink.length) {
+            //     getLatestData(latestNewsLink)
+            //         .then((response) => {
+            //             if (
+            //                 response.data.output &&
+            //                 response.data.output.length
+            //             ) {
+            //                 const formattedData = parseStringData(
+            //                     response.data.output
+            //                 );
+            //                 setLatestData(formattedData);
+            //                 setLoader(false);
+            //             }
+            //         })
+            //         .catch((e) => {
+            //             Alert.alert('API Data Error', `\n${e}`, [
+            //                 {
+            //                     text: 'Ok',
+            //                     onPress: () => {
+            //                         setLoader(false);
+            //                         setAPIError(e);
+            //                     },
+            //                     style: 'cancel',
+            //                 },
+            //             ]);
+            //         });
+            // }
+
             Alert.alert(
                 'Acordul Utilizatorului',
                 `\nAceastă aplicație necesită locația telefonului dvs.\n\nDacă sunteți de acord, vom folosi locația pentru a afișa ca prim rezultat informații despre județul în care vă aflați.\n\nVă mulțumim!`,
@@ -60,26 +111,6 @@ export default function MapScreen(props) {
                 ]
             );
         } else if (userAgreement && isLoaded) {
-            setLoader(true);
-
-            if (!latestData.length) {
-                setLatestData(formattedData);
-                setLoader(false);
-            }
-
-            // TO BE UNCOMMENTED OUT
-            // if (latestNewsLink.length) {
-            //     getLatestData(latestNewsLink).then((response) => {
-            //         if (response.data.output && response.data.output.length) {
-            //             const formattedData = parseStringData(
-            //                 response.data.output
-            //             );
-            //             setLatestData(formattedData);
-            //             setLoader(false);
-            //         }
-            //     });
-            // }
-
             if (!deviceData.location) {
                 if (Platform.OS === 'android' && !Constants.isDevice) {
                     setDeviceData({
@@ -99,8 +130,6 @@ export default function MapScreen(props) {
                         });
                     });
                 }
-            } else {
-                setLoader(false);
             }
         }
     }, [props.screenProps.isLoaded, userAgreement, latestNewsLink, deviceData]);
@@ -108,7 +137,12 @@ export default function MapScreen(props) {
     return (
         <View style={styles.container}>
             {loader && <Loader size="large" tintColor="#fff" />}
-            <InteractiveMap data={latestData} location={deviceData.location} />
+            {!apiError && (
+                <InteractiveMap
+                    data={latestData}
+                    location={deviceData.location}
+                />
+            )}
         </View>
     );
 }
