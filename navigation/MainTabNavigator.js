@@ -23,10 +23,7 @@ const MapStack = createStackNavigator(
 MapStack.navigationOptions = {
     tabBarLabel: 'Hartă',
     tabBarIcon: ({ focused }) => (
-        <TabBarIcon
-            focused={focused}
-            name={focused ? 'enviromento' : 'enviroment'}
-        />
+        <TabBarIcon focused={focused} name={focused ? 'map-pin' : 'map-pin'} />
     ),
 };
 
@@ -44,7 +41,7 @@ StatsStack.navigationOptions = {
     tabBarIcon: ({ focused }) => (
         <TabBarIcon
             focused={focused}
-            name={focused ? 'questioncircleo' : 'questioncircle'}
+            name={focused ? 'bar-chart-2' : 'bar-chart-2'}
         />
     ),
 };
@@ -61,10 +58,7 @@ const RecommendationsStack = createStackNavigator(
 RecommendationsStack.navigationOptions = {
     tabBarLabel: 'Recomandări',
     tabBarIcon: ({ focused }) => (
-        <TabBarIcon
-            focused={focused}
-            name={focused ? 'questioncircleo' : 'questioncircle'}
-        />
+        <TabBarIcon focused={focused} name={focused ? 'check' : 'check'} />
     ),
 };
 

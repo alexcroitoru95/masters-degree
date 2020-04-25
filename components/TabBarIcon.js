@@ -1,11 +1,11 @@
 import React from 'react';
-import { AntDesign } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 import { Colors } from '../constants';
 
 export function TabBarIcon(props) {
     return (
-        <AntDesign
+        <Feather
             name={props.name}
             size={26}
             style={{ marginBottom: -3 }}

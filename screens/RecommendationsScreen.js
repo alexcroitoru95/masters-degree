@@ -1,381 +1,100 @@
-import React, { useState, useEffect, PureComponent } from 'react';
-import Constants from 'expo-constants';
-import {
-    Platform,
-    Alert,
-    Image,
-    SafeAreaView,
-    FlatList,
-    Text,
-    StyleSheet,
-    View,
-} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Image } from 'react-native';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
+import ImageZoom from 'react-native-image-pan-zoom';
 
-import { Loader } from '../components';
+import { WINDOW } from '../constants';
+import { RecommendationCardImages } from '../assets/images';
 
-String.prototype.capitalize = function () {
-    return this.charAt(0).toUpperCase() + this.slice(1);
+const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = WINDOW;
+
+const CarouselItems = (carouselProps, activeScroll, setActiveScroll) => {
+    const { item, index } = carouselProps;
+    return (
+        <View key={`Recommendation-Card-${index}`}>
+            <ImageZoom
+                panToMove={!activeScroll}
+                cropWidth={WINDOW_WIDTH}
+                cropHeight={WINDOW_HEIGHT}
+                onMove={({ scale }) => {
+                    setActiveScroll(scale === 1 ? true : false);
+                }}
+                imageWidth={WINDOW_WIDTH}
+                imageHeight={WINDOW_HEIGHT}
+            >
+                <Image
+                    source={item}
+                    style={styles.cardImage}
+                    resizeMode="contain"
+                />
+            </ImageZoom>
+        </View>
+    );
 };
 
 export default function RecommendationsScreen() {
-    const [deviceData, setDeviceData] = useState({
-        location: null,
-        errorMessage: null,
-    });
-    const [loader, setLoader] = useState(false);
-    const [pollutionData, setPollutionData] = useState([]);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [activeScroll, setActiveScroll] = useState(true);
 
-    // useEffect(() => {
-    //     if (
-    //         Platform.OS === 'android' &&
-    //         !Constants.isDevice &&
-    //         !deviceData.errorMessage.length
-    //     ) {
-    //         setDeviceData({
-    //             location: null,
-    //             errorMessage:
-    //                 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-    //         });
-    //     } else {
-    //         if (!deviceData.location) {
-    //             getLocationAsync(true).then((data) => {
-    //                 setDeviceData(data);
-    //                 setLoader(true);
-    //             });
-    //         } else if (deviceData.location && !pollutionData.length) {
-    //             const { latitude, longitude } = deviceData.location;
-    //             getPollutionData(latitude, longitude).then((response) => {
-    //                 setPollutionData(response.data);
-    //                 setLoader(false);
-    //             });
-    //         }
-    //     }
-    // }, [deviceData]);
+    const arrayOfImages = Object.values(RecommendationCardImages);
 
     return (
-        <View style={styles.container}>
-            {/* {deviceData.location && !deviceData.errorMessage && (
-                <View style={styles.contentContainer}>
-                    <View style={styles.locationContainer}>
-                        <Text style={styles.bigText}>
-                            {deviceData.location.city},{' '}
-                            {deviceData.location.region}
-                        </Text>
-                        <Text style={[styles.bigText, styles.marginTopText]}>
-                            {deviceData.location.country}
-                        </Text>
-                    </View>
-                    <View style={styles.pollutionContainer}>
-                        {loader && (
-                            <View style={styles.loaderContainer}>
-                                <Loader
-                                    size={200}
-                                    width={5}
-                                    fill={100}
-                                    tintColor="#007aff"
-                                    backgroundColor="#fff"
-                                />
-                            </View>
-                        )}
-                        {pollutionData.length > 1 && (
-                            <>
-                                <View style={styles.headerContainer}>
-                                    <Image
-                                        source={require('../assets/images/air_pollution.png')}
-                                        style={[
-                                            styles.airPollutionImage,
-                                            {
-                                                tintColor:
-                                                    pollutionData[0].indexes
-                                                        .baqi.color
-                                            }
-                                        ]}
-                                    />
-                                    <Text style={styles.bigText}>
-                                        {pollutionData[0].indexes.baqi.category}
-                                    </Text>
-                                    <View style={styles.pollutionScore}>
-                                        <Text style={styles.bigText}>
-                                            Score:{' '}
-                                        </Text>
-                                        <Text
-                                            style={[
-                                                styles.bigText,
-                                                {
-                                                    color:
-                                                        pollutionData[0].indexes
-                                                            .baqi.color
-                                                }
-                                            ]}
-                                        >
-                                            {
-                                                pollutionData[0].indexes.baqi
-                                                    .aqi_display
-                                            }
-                                            %
-                                        </Text>
-                                    </View>
-                                </View>
-                                <View style={styles.todaysDate}>
-                                    <Text style={styles.todaysDateText}>
-                                        {
-                                            daysOfWeek[
-                                                new Date(
-                                                    pollutionData[0].datetime
-                                                ).getDay()
-                                            ]
-                                        }{' '}
-                                        -{' '}
-                                        {getHoursAndMinutesFromDate(
-                                            pollutionData[0].datetime
-                                        )}
-                                    </Text>
-                                    <Text style={styles.todaysDateLabel}>
-                                        Now
-                                    </Text>
-                                </View>
-                                <SafeAreaView style={styles.forecastContainer}>
-                                    <FlatList
-                                        data={pollutionData.slice(1)}
-                                        style={styles.forecastContainer}
-                                        renderItem={({ item }) => (
-                                            <FlatListItem
-                                                date={item.datetime}
-                                                iconColor={
-                                                    item.indexes.baqi.color
-                                                }
-                                                score={
-                                                    item.indexes.baqi
-                                                        .aqi_display
-                                                }
-                                            />
-                                        )}
-                                        keyExtractor={item => item.datetime}
-                                    />
-                                </SafeAreaView>
-                            </>
-                        )}
-                    </View>
-                </View>
-            )}
-            {!deviceData.location && !deviceData.errorMessage && (
-                <View style={styles.loaderContainer}>
-                    <Loader
-                        size={230}
-                        width={5}
-                        fill={100}
-                        tintColor="#007aff"
-                        backgroundColor="#fff"
-                        loadingText="Acquiring location..."
-                    />
-                </View>
-            )}
-            {deviceData.errorMessage && (
-                <View style={styles.errorContainer}>
-                    <Text style={styles.bigText}>
-                        Denied access to this device's location.
-                    </Text>
-                </View>
-            )} */}
+        <View style={styles.carouselContainer}>
+            <Carousel
+                scrollEnabled={activeScroll}
+                data={arrayOfImages}
+                renderItem={(carouselProps) =>
+                    CarouselItems(carouselProps, activeScroll, setActiveScroll)
+                }
+                sliderWidth={WINDOW_WIDTH}
+                itemWidth={WINDOW_WIDTH}
+                slideStyle={styles.slide}
+                inactiveSlideOpacity={1}
+                inactiveSlideScale={1}
+                onSnapToItem={(index) => setActiveIndex(index)}
+            />
+            <Pagination
+                dotsLength={arrayOfImages.length}
+                activeDotIndex={activeIndex}
+                containerStyle={styles.paginationContainer}
+                dotStyle={styles.paginationBullets}
+                inactiveDotOpacity={0.4}
+                inactiveDotScale={0.6}
+            />
         </View>
     );
 }
-
-function addZeroToDate(i) {
-    if (i < 10) {
-        i = '0' + i;
-    }
-    return i;
-}
-
-function getHoursAndMinutesFromDate(date) {
-    const d = new Date(date);
-    const h = addZeroToDate(d.getHours());
-    const m = addZeroToDate(d.getMinutes());
-
-    return `${h}:${m}`;
-}
-
-// async function getPollutionData(latitude, longitude) {
-//     let responseData = null;
-
-//     const startTime = new Date();
-//     startTime.setHours(startTime.getHours() + 1);
-//     const startTimeISO = startTime.toISOString().split('.')[0];
-//     const endTime = new Date();
-//     endTime.setDate(endTime.getDate() + 3);
-//     endTime.setHours(endTime.getHours() - 1);
-//     const endTimeISO = endTime.toISOString().split('.')[0];
-
-//     try {
-//         let response = await fetch(
-//             `${BREEZOMETER_AIR_POLLUTION_API_CALL}&lat=${latitude}&lon=${longitude}&start_datetime=${startTimeISO}&end_datetime=${endTimeISO}`
-//         );
-//         responseData = await response.json();
-//     } catch (error) {
-//         Alert.alert('Error', error, [
-//             {
-//                 text: 'Ok',
-//                 onPress: () => undefined,
-//                 style: 'cancel',
-//             },
-//         ]);
-//     }
-
-//     return responseData;
-// }
 
 RecommendationsScreen.navigationOptions = {
     header: null,
 };
 
 const styles = StyleSheet.create({
-    container: {
+    carouselContainer: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#309df5',
     },
-    errorContainer: {
-        flex: 1,
-        alignItems: 'center',
+    slide: {
+        width: WINDOW_WIDTH,
+    },
+    cardImage: {
+        width: '100%',
+        height: '100%',
+    },
+    paginationContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        alignItems: 'flex-end',
         justifyContent: 'center',
     },
-    contentContainer: {
-        flex: 1,
-        ...Platform.select({
-            ios: {
-                paddingTop: 30,
-            },
-            android: {
-                paddingTop: 10,
-            },
-        }),
-    },
-    locationContainer: {
-        alignItems: 'center',
-        marginTop: 50,
-    },
-    pollutionContainer: {
-        flex: 1,
-    },
-    loaderContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#000',
-    },
-    headerContainer: {
-        alignItems: 'center',
-    },
-    airPollutionImage: {
-        ...Platform.select({
-            ios: {
-                width: 150,
-                height: 150,
-            },
-            android: {
-                width: 125,
-                height: 125,
-            },
-        }),
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        resizeMode: 'contain',
-        marginTop: 3,
-    },
-    pollutionScore: {
-        marginTop: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    todaysDate: {
-        flexDirection: 'row',
-        marginTop: 25,
-        marginLeft: 20,
-        marginRight: 20,
-        alignItems: 'center',
-        borderBottomWidth: 2,
-        borderBottomColor: '#fff',
-    },
-    forecastContainer: {
-        flex: 1,
-        marginTop: 5,
-        marginBottom: 10,
-        ...Platform.select({
-            ios: {
-                paddingLeft: 20,
-                paddingRight: 20,
-            },
-            android: {
-                paddingLeft: 10,
-                paddingRight: 10,
-            },
-        }),
-    },
-    flatListItem: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    flatListDate: {
-        fontSize: 18,
-        color: '#fff',
-        lineHeight: 18,
-        textAlign: 'left',
-    },
-    flatListImage: {
-        width: 35,
-        height: 35,
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        resizeMode: 'contain',
-    },
-    flatListScore: {
-        fontSize: 18,
-        color: '#fff',
-        lineHeight: 18,
-        textAlign: 'right',
-    },
-    bigText: {
-        fontSize: 28,
-        color: '#fff',
-        lineHeight: 28,
-        textAlign: 'center',
-    },
-    smallText: {
-        fontSize: 24,
-        color: '#fff',
-        lineHeight: 24,
-        textAlign: 'center',
-    },
-    todaysDateText: {
-        fontSize: 18,
-        color: '#fff',
-        lineHeight: 18,
-    },
-    todaysDateLabel: {
-        fontSize: 14,
-        color: '#fff',
-        lineHeight: 14,
-        fontWeight: 'bold',
-        marginLeft: 10,
-        textTransform: 'uppercase',
-    },
-    marginTopText: {
-        marginTop: 10,
-        // ...Platform.select({
-        //     ios: {
-        //         shadowColor: 'black',
-        //         shadowOffset: { width: 0, height: -3 },
-        //         shadowOpacity: 0.1,
-        //         shadowRadius: 3
-        //     },
-        //     android: {
-        //         elevation: 20
-        //     }
-        // }),
-    },
-    marginRightText: {
-        marginRight: 10,
+    paginationBullets: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        marginHorizontal: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.92)',
     },
 });

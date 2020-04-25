@@ -1,10 +1,10 @@
 {
   "devToolsPort": 19002,
-  "expoServerPort": null,
-  "packagerPort": null,
-  "packagerPid": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null,
+  "expoServerPort": 19000,
+  "packagerPort": 19001,
+  "packagerPid": 11124,
+  "expoServerNgrokUrl": "https://ju-ymk.alexandrucroitoru.masters-degree.exp.direct",
+  "packagerNgrokUrl": "https://packager.ju-ymk.alexandrucroitoru.masters-degree.exp.direct",
+  "ngrokPid": 11153,
   "webpackServerPort": null
 }
