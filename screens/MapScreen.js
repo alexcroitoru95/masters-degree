@@ -27,27 +27,27 @@ export default function MapScreen(props) {
     const [apiError, setAPIError] = useState('');
 
     // TO BE UNCOMMENTED OUT
-    useEffect(() => {
-        getLatestNews()
-            .then((response) => {
-                if (response.data.output && response.data.output.length) {
-                    const formattedLink = response.data.output.split('/')[3];
-                    setLatestNewsLink(formattedLink);
-                }
-            })
-            .catch((e) => {
-                Alert.alert('API Link Error', `\n${e}`, [
-                    {
-                        text: 'Ok',
-                        onPress: () => {
-                            setLoader(false);
-                            setAPIError(e);
-                        },
-                        style: 'cancel',
-                    },
-                ]);
-            });
-    }, []);
+    // useEffect(() => {
+    //     getLatestNews()
+    //         .then((response) => {
+    //             if (response.data.output && response.data.output.length) {
+    //                 const formattedLink = response.data.output.split('/')[3];
+    //                 setLatestNewsLink(formattedLink);
+    //             }
+    //         })
+    //         .catch((e) => {
+    //             Alert.alert('API Link Error', `\n${e}`, [
+    //                 {
+    //                     text: 'Ok',
+    //                     onPress: () => {
+    //                         setLoader(false);
+    //                         setAPIError(e);
+    //                     },
+    //                     style: 'cancel',
+    //                 },
+    //             ]);
+    //         });
+    // }, []);
 
     useEffect(() => {
         const { isLoaded } = props.screenProps;

@@ -6,3 +6,5 @@ export const RecommendationCardImages = {
     fifthRecommendationCard: require('./recommendation_5.png'),
     sixthRecommendationCard: require('./recommendation_6.png'),
 };
+
+export const roFlag = require('./ro-flag.png');
