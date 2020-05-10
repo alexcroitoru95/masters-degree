@@ -26,28 +26,28 @@ export default function MapScreen(props) {
     const [latestData, setLatestData] = useState('');
     const [apiError, setAPIError] = useState('');
 
-    // TO BE UNCOMMENTED OUT
-    // useEffect(() => {
-    //     getLatestNews()
-    //         .then((response) => {
-    //             if (response.data.output && response.data.output.length) {
-    //                 const formattedLink = response.data.output.split('/')[3];
-    //                 setLatestNewsLink(formattedLink);
-    //             }
-    //         })
-    //         .catch((e) => {
-    //             Alert.alert('API Link Error', `\n${e}`, [
-    //                 {
-    //                     text: 'Ok',
-    //                     onPress: () => {
-    //                         setLoader(false);
-    //                         setAPIError(e);
-    //                     },
-    //                     style: 'cancel',
-    //                 },
-    //             ]);
-    //         });
-    // }, []);
+    // TO BE UNCOMMENTED OUT FOR LIVE DATA
+    useEffect(() => {
+        getLatestNews()
+            .then((response) => {
+                if (response.data.output && response.data.output.length) {
+                    const formattedLink = response.data.output.split('/')[3];
+                    setLatestNewsLink(formattedLink);
+                }
+            })
+            .catch((e) => {
+                Alert.alert('API Link Error', `\n${e}`, [
+                    {
+                        text: 'Ok',
+                        onPress: () => {
+                            setLoader(false);
+                            setAPIError(e);
+                        },
+                        style: 'cancel',
+                    },
+                ]);
+            });
+    }, []);
 
     useEffect(() => {
         const { isLoaded } = props.screenProps;
@@ -56,39 +56,39 @@ export default function MapScreen(props) {
             setLoader(true);
 
             // MOCK DATA
-            if (!latestData.length) {
-                setLatestData(formattedData);
-                setLoader(false);
-            }
-
-            // TO BE UNCOMMENTED OUT
-            // if (latestNewsLink.length) {
-            //     getLatestData(latestNewsLink)
-            //         .then((response) => {
-            //             if (
-            //                 response.data.output &&
-            //                 response.data.output.length
-            //             ) {
-            //                 const formattedData = parseStringData(
-            //                     response.data.output
-            //                 );
-            //                 setLatestData(formattedData);
-            //                 setLoader(false);
-            //             }
-            //         })
-            //         .catch((e) => {
-            //             Alert.alert('API Data Error', `\n${e}`, [
-            //                 {
-            //                     text: 'Ok',
-            //                     onPress: () => {
-            //                         setLoader(false);
-            //                         setAPIError(e);
-            //                     },
-            //                     style: 'cancel',
-            //                 },
-            //             ]);
-            //         });
+            // if (!latestData.length) {
+            //     setLatestData(formattedData);
+            //     setLoader(false);
             // }
+
+            // TO BE UNCOMMENTED OUT FOR LIVE DATA
+            if (latestNewsLink.length) {
+                getLatestData(latestNewsLink)
+                    .then((response) => {
+                        if (
+                            response.data.output &&
+                            response.data.output.length
+                        ) {
+                            const formattedData = parseStringData(
+                                response.data.output
+                            );
+                            setLatestData(formattedData);
+                            setLoader(false);
+                        }
+                    })
+                    .catch((e) => {
+                        Alert.alert('API Data Error', `\n${e}`, [
+                            {
+                                text: 'Ok',
+                                onPress: () => {
+                                    setLoader(false);
+                                    setAPIError(e);
+                                },
+                                style: 'cancel',
+                            },
+                        ]);
+                    });
+            }
 
             Alert.alert(
                 'Acordul Utilizatorului',

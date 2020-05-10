@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Animated, Image } from 'react-native';
+import {
+    Platform,
+    StyleSheet,
+    Text,
+    View,
+    Animated,
+    Image,
+} from 'react-native';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import Carousel from 'react-native-snap-carousel';
@@ -19,8 +26,9 @@ const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = WINDOW;
 
 const ASPECT_RATIO = WINDOW_WIDTH / WINDOW_HEIGHT;
 const CARD_HEIGHT = WINDOW_HEIGHT / 4;
-const CARD_WIDTH = CARD_HEIGHT - 50;
-const MARGIN_BETWEEN_CARDS = 10;
+const DEVICE_CARD_OFFSET = Platform.OS === 'ios' ? 50 : 40;
+const CARD_WIDTH = CARD_HEIGHT - DEVICE_CARD_OFFSET;
+const MARGIN_BETWEEN_CARDS = Platform.OS === 'ios' ? 10 : 0;
 
 const CarouselItems = ({ item, index }) => {
     const { title, image, cases } = item;
@@ -182,7 +190,14 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     cardImage: {
-        flex: 3,
+        ...Platform.select({
+            ios: {
+                flex: 3,
+            },
+            android: {
+                flex: 1,
+            },
+        }),
         width: '100%',
         height: '100%',
         borderRadius: 10,

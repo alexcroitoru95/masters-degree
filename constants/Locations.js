@@ -175,6 +175,7 @@ export const regionsOfRomania = {
 export const replaceDiacriticsOnRegion = (region) => {
     let formattedRegion = region;
 
+    formattedRegion = formattedRegion.replace(new RegExp(/Județul /g), '');
     formattedRegion = formattedRegion.replace(new RegExp(/ş/g), 'ș');
     formattedRegion = formattedRegion.replace(new RegExp(/â/g), 'â');
     formattedRegion = formattedRegion.replace(new RegExp(/ă/g), 'ă');
